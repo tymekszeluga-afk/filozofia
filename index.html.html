@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filozofia — Aplikacja do nauki | APS</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --bg2: #16161d;
+    --bg3: #1e1e28;
+    --bg4: #26263a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --accent: #7c6fff;
+    --accent2: #a08bff;
+    --teal: #2dd4aa;
+    --amber: #f0a030;
+    --coral: #f06060;
+    --green: #48d068;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; min-height: 100vh; }
+
+  /* LAYOUT */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); padding: 1.5rem 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 100; }
+  .main { margin-left: 220px; flex: 1; padding: 2rem 2.5rem; max-width: 1100px; }
+
+  /* SIDEBAR */
+  .logo { padding: 0 1.25rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 0.75rem; }
+  .logo h1 { font-size: 0.95rem; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+  .logo p { font-size: 0.72rem; color: var(--text3); margin-top: 2px; }
+  .nav-group { margin-bottom: 0.25rem; }
+  .nav-label { font-size: 0.65rem; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 1.25rem 0.25rem; }
+  .nav-btn { display: flex; align-items: center; gap: 0.6rem; width: 100%; padding: 0.55rem 1.25rem; border: none; background: none; color: var(--text2); cursor: pointer; font-size: 0.82rem; text-align: left; transition: all 0.15s; border-radius: 0; }
+  .nav-btn:hover { background: var(--bg3); color: var(--text); }
+  .nav-btn.active { background: rgba(124,111,255,0.15); color: var(--accent2); font-weight: 500; }
+  .nav-btn .icon { font-size: 0.9rem; width: 18px; text-align: center; flex-shrink: 0; }
+  .badge { margin-left: auto; background: var(--bg4); color: var(--text3); font-size: 0.65rem; padding: 1px 6px; border-radius: 10px; }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* TYPOGRAPHY */
+  .page-title { font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+  .page-sub { font-size: 0.85rem; color: var(--text2); margin-bottom: 1.75rem; }
+  h3 { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.6rem; }
+  h4 { font-size: 0.85rem; font-weight: 600; color: var(--text2); margin-bottom: 0.4rem; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .card-sm { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.875rem 1rem; margin-bottom: 0.625rem; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.875rem; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; }
+
+  /* TAGS */
+  .tag { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.03em; }
+  .tag-purple { background: rgba(124,111,255,0.18); color: var(--accent2); }
+  .tag-teal { background: rgba(45,212,170,0.15); color: var(--teal); }
+  .tag-amber { background: rgba(240,160,48,0.15); color: var(--amber); }
+  .tag-coral { background: rgba(240,96,96,0.15); color: var(--coral); }
+  .tag-green { background: rgba(72,208,104,0.15); color: var(--green); }
+  .tag-gray { background: rgba(144,144,168,0.12); color: var(--text2); }
+
+  /* LEFT-BORDER BLOCKS */
+  .block { border-left: 3px solid; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.8rem 1rem; background: var(--bg3); margin-bottom: 0.625rem; }
+  .block p, .block li { font-size: 0.82rem; line-height: 1.65; color: var(--text); }
+  .block ul { padding-left: 1.1rem; margin-top: 0.25rem; }
+  .block h4 { font-size: 0.82rem; font-weight: 600; color: var(--text2); margin-bottom: 0.3rem; }
+  .bl-purple { border-color: var(--accent); }
+  .bl-teal { border-color: var(--teal); }
+  .bl-amber { border-color: var(--amber); }
+  .bl-coral { border-color: var(--coral); }
+  .bl-green { border-color: var(--green); }
+  .bl-gray { border-color: var(--text3); }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0.5rem; }
+  .tl-row { display: flex; gap: 1rem; align-items: flex-start; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+  .tl-tag { min-width: 90px; font-size: 0.72rem; font-weight: 600; color: var(--accent2); flex-shrink: 0; padding-top: 1px; }
+  .tl-text { font-size: 0.83rem; color: var(--text2); }
+  .tl-text strong { color: var(--text); }
+
+  /* PHILOSOPHER CARDS */
+  .phil-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .phil-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; transition: all 0.15s; text-align: left; width: 100%; }
+  .phil-card:hover { border-color: var(--accent); background: var(--bg4); transform: translateY(-1px); }
+  .phil-card .name { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .phil-card .years { font-size: 0.75rem; color: var(--text3); }
+  .phil-card .area { font-size: 0.72rem; color: var(--accent2); margin-top: 4px; }
+
+  /* DETAIL PANEL */
+  .detail-panel { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); padding: 1.5rem; margin-top: 1rem; display: none; position: relative; }
+  .detail-panel.open { display: block; }
+  .detail-panel h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+  .close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text3); cursor: pointer; font-size: 1.2rem; line-height: 1; }
+  .close-btn:hover { color: var(--text); }
+  .concept-item { background: var(--bg4); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+  .concept-item .label { font-size: 0.78rem; font-weight: 600; color: var(--accent2); margin-bottom: 3px; }
+  .concept-item .desc { font-size: 0.82rem; line-height: 1.6; color: var(--text); }
+  .works-list { font-size: 0.8rem; color: var(--text2); padding-left: 1.1rem; margin-bottom: 1rem; }
+  .works-list li { margin-bottom: 3px; }
+
+  /* FLASHCARDS */
+  .fc-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; }
+  .fc-scene { perspective: 1000px; width: 100%; max-width: 600px; height: 220px; cursor: pointer; margin: 0 auto 1.25rem; }
+  .fc-card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(.4,0,.2,1); }
+  .fc-card.flipped { transform: rotateY(180deg); }
+  .fc-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; border: 1px solid var(--border2); }
+  .fc-front { background: var(--bg2); }
+  .fc-back { background: var(--bg3); transform: rotateY(180deg); }
+  .fc-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text3); text-transform: uppercase; margin-bottom: 0.625rem; }
+  .fc-text { font-size: 1rem; font-weight: 500; line-height: 1.5; color: var(--text); max-width: 480px; }
+  .fc-hint { font-size: 0.72rem; color: var(--text3); margin-top: 0.75rem; }
+  .fc-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+  .fc-counter { font-size: 0.82rem; color: var(--text2); min-width: 60px; text-align: center; }
+  .btn { padding: 7px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--bg3); color: var(--text); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
+  .btn:hover { background: var(--bg4); border-color: var(--border2); }
+  .btn-accent { background: rgba(124,111,255,0.2); border-color: var(--accent); color: var(--accent2); }
+  .btn-accent:hover { background: rgba(124,111,255,0.3); }
+  .select { padding: 7px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--bg3); color: var(--text); font-size: 0.82rem; cursor: pointer; }
+
+  /* QUIZ */
+  .q-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+  .q-num { font-size: 0.72rem; color: var(--text3); margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .q-text { font-size: 1rem; font-weight: 500; margin-bottom: 1.25rem; line-height: 1.5; }
+  .opts { display: grid; gap: 0.5rem; }
+  .opt { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; cursor: pointer; font-size: 0.85rem; text-align: left; color: var(--text2); transition: all 0.15s; }
+  .opt:hover:not(:disabled) { border-color: var(--accent); color: var(--text); background: var(--bg4); }
+  .opt.correct { background: rgba(72,208,104,0.12); border-color: var(--green); color: var(--green); }
+  .opt.wrong { background: rgba(240,96,96,0.1); border-color: var(--coral); color: var(--coral); }
+  .opt:disabled { cursor: default; }
+  .feedback { padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.83rem; margin-top: 0.75rem; display: none; line-height: 1.55; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(72,208,104,0.1); border: 1px solid rgba(72,208,104,0.3); color: #80e8a0; }
+  .feedback.no { background: rgba(240,96,96,0.08); border: 1px solid rgba(240,96,96,0.25); color: #f09090; }
+  .score-panel { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius); padding: 2.5rem; text-align: center; margin-top: 1.5rem; display: none; }
+  .score-panel.show { display: block; }
+  .score-big { font-size: 3rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.5rem; }
+  .score-msg { font-size: 0.9rem; color: var(--text2); }
+
+  /* GLOSSARY */
+  .search-bar { width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; color: var(--text); font-size: 0.9rem; margin-bottom: 1rem; transition: border-color 0.15s; }
+  .search-bar:focus { outline: none; border-color: var(--accent); }
+  .search-bar::placeholder { color: var(--text3); }
+  .filter-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .pill { padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); color: var(--text3); cursor: pointer; font-size: 0.75rem; transition: all 0.15s; }
+  .pill:hover { border-color: var(--border2); color: var(--text2); }
+  .pill.active { background: rgba(124,111,255,0.18); border-color: var(--accent); color: var(--accent2); }
+  .glos-table { display: flex; flex-direction: column; gap: 0; }
+  .glos-row { display: flex; gap: 1.5rem; align-items: flex-start; padding: 0.875rem 0; border-bottom: 1px solid var(--border); }
+  .glos-row:last-child { border-bottom: none; }
+  .glos-term { font-size: 0.88rem; font-weight: 600; color: var(--text); min-width: 180px; flex-shrink: 0; }
+  .glos-author { font-size: 0.72rem; color: var(--accent2); margin-top: 2px; }
+  .glos-def { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+  .glos-def strong { color: var(--text); font-weight: 500; }
+
+  /* MAP / OVERVIEW */
+  .map-row { display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1rem; background: var(--bg3); border-radius: var(--radius-sm); border-left: 3px solid; margin-bottom: 0.5rem; }
+  .map-row p { font-size: 0.83rem; color: var(--text2); }
+  .map-row p strong { color: var(--text); }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-bottom: 1.25rem; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--teal)); border-radius: 2px; transition: width 0.3s; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { background: var(--bg4); color: var(--text2); font-weight: 600; padding: 8px 12px; text-align: left; border: 1px solid var(--border); }
+  td { padding: 7px 12px; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; padding: 0.75rem; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .logo { display: none; }
+    .nav-label { display: none; }
+    .nav-btn { padding: 6px 10px; font-size: 0.75rem; }
+    .nav-group { display: flex; }
+    .main { margin-left: 0; padding: 1.25rem; }
+    .shell { flex-direction: column; }
+    .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <h1>Filozofia APS</h1>
+    <p>Notatki egzaminacyjne</p>
+  </div>
+  <div class="nav-group">
+    <p class="nav-label">Przegląd</p>
+    <button class="nav-btn active" onclick="go('map')"><span class="icon">🗺</span> Mapa kursu</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-label">Epoki</p>
+    <button class="nav-btn" onclick="go('ancient')"><span class="icon">🏛</span> Starożytność</button>
+    <button class="nav-btn" onclick="go('medieval')"><span class="icon">⛪</span> Średniowiecze</button>
+    <button class="nav-btn" onclick="go('modern')"><span class="icon">📖</span> Nowożytność</button>
+    <button class="nav-btn" onclick="go('contemp')"><span class="icon">🔬</span> XIX–XX w.</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-label">Tematy</p>
+    <button class="nav-btn" onclick="go('polish')"><span class="icon">🇵🇱</span> Filozofia polska</button>
+    <button class="nav-btn" onclick="go('social')"><span class="icon">⚖</span> Filozofia społeczna</button>
+  </div>
+  <div class="nav-group">
+    <p class="nav-label">Nauka</p>
+    <button class="nav-btn" onclick="go('flash')"><span class="icon">🃏</span> Fiszki <span class="badge">40</span></button>
+    <button class="nav-btn" onclick="go('quiz')"><span class="icon">❓</span> Quiz <span class="badge">20</span></button>
+    <button class="nav-btn" onclick="go('glos')"><span class="icon">📚</span> Słownik <span class="badge">60+</span></button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- MAP -->
+<div id="page-map" class="page active">
+  <h2 class="page-title">Mapa kursu filozofii</h2>
+  <p class="page-sub">Format egzaminu: 3 pytania z puli 75 · 1 dobra = dst · 2 = db · 3 = bdb · czas: 6–12 min</p>
+  <div class="grid2" style="margin-bottom:1.25rem">
+    <div class="card" style="margin-bottom:0">
+      <h3>Epoki i tematy</h3>
+      <div class="timeline" style="margin-top:0.75rem">
+        <div class="tl-row"><span class="tl-tag">do III w. p.n.e.</span><p class="tl-text"><strong>Starożytność</strong> — Sofiści · Sokrates · Platon · Arystoteles</p></div>
+        <div class="tl-row"><span class="tl-tag">III w. p.n.e.</span><p class="tl-text"><strong>Hellenizm</strong> — Stoicyzm · Epikureizm · Sceptycyzm</p></div>
+        <div class="tl-row"><span class="tl-tag">III–XV w.</span><p class="tl-text"><strong>Średniowiecze</strong> — Plotyn · Augustyn · Anzelm · Tomasz · Ockham</p></div>
+        <div class="tl-row"><span class="tl-tag">XVI–XVIII w.</span><p class="tl-text"><strong>Nowożytność</strong> — Bacon · Kartezjusz · Locke · Berkeley · Hume · Kant</p></div>
+        <div class="tl-row"><span class="tl-tag">XIX–XX w.</span><p class="tl-text"><strong>Filozofia człowieka</strong> — Schopenhauer · Nietzsche · Kierkegaard · Buber · Levinas · Husserl</p></div>
+        <div class="tl-row"><span class="tl-tag">XIX–XX w.</span><p class="tl-text"><strong>Filozofia nauki</strong> — Comte · Wundt · Herbart · Popper · Kuhn</p></div>
+        <div class="tl-row"><span class="tl-tag">XIX–XX w.</span><p class="tl-text"><strong>Filozofia społeczna</strong> — Bentham · James · Hegel · Feuerbach · Marks · Spencer</p></div>
+        <div class="tl-row"><span class="tl-tag">XIX–XXI w.</span><p class="tl-text"><strong>Filozofia polska</strong> — Elzenberg · Szkoła L-W · Tischner · Bańka · Kołakowski · Wojtyła</p></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <h3>Kluczowe zagadnienia egzaminacyjne</h3>
+      <p class="nav-label" style="margin-bottom:0.4rem;margin-top:0.6rem">Teoria poznania</p>
+      <p style="font-size:0.82rem;color:var(--text2)">Tabula rasa · Anamneza · Iluminacja · Sceptycyzm metodyczny · Syntetyczne a priori · Epoché · Intencjonalność</p>
+      <p class="nav-label" style="margin-bottom:0.4rem;margin-top:0.75rem">Etyka</p>
+      <p style="font-size:0.82rem;color:var(--text2)">Złoty środek · Imperatyw kategoryczny · 7 wymiarów przyjemności · Opiekun spolegliwy · Filozofia dramatu · Homo ethicus</p>
+      <p class="nav-label" style="margin-bottom:0.4rem;margin-top:0.75rem">Metafizyka</p>
+      <p style="font-size:0.82rem;color:var(--text2)">Idee Platona · 4 przyczyny · 5 dróg Tomasza · Dowód ontologiczny · Brzytwa Ockhama · Recentywizm</p>
+      <p class="nav-label" style="margin-bottom:0.4rem;margin-top:0.75rem">Filozofia społeczna</p>
+      <p style="font-size:0.82rem;color:var(--text2)">Triada heglowska · Alienacja religijna · Materializm dialektyczny · Ewolucjonizm · Pragmatyzm · Wolność i ojczyzna</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Definicje i podział filozofii</h3>
+    <div class="grid2" style="gap:0.75rem">
+      <div>
+        <p style="font-size:0.85rem;margin-bottom:0.5rem"><strong>Filozofia</strong> = nauka zajmująca się ogólnymi i podstawowymi zagadnieniami dotyczącymi natury świata i człowieka. <em style="color:var(--text3)">gr. phileo (kochać) + sophia (mądrość)</em></p>
+        <table><tr><th>Pojęcie</th><th>Definicja</th></tr>
+        <tr><td><strong>Ontologia</strong></td><td>Nauka o niesprzecznościach i możliwościach bytu</td></tr>
+        <tr><td><strong>Metafizyka</strong></td><td>Nauka o strukturach bytu REALNIE istniejącego</td></tr>
+        <tr><td><strong>Epistemologia</strong></td><td>Bada relację poznania z rzeczywistością; źródła i granice prawdy</td></tr>
+        <tr><td><strong>Etyka</strong></td><td>Uzasadnienie moralności (gr. ethos = zwyczaj, nawyk)</td></tr>
+        <tr><td><strong>Aksjologia</strong></td><td>Teoria wartości — natura, hierarchia, źródła</td></tr></table>
+      </div>
+      <div>
+        <p class="nav-label" style="margin-bottom:0.4rem">Podział wertykalny (podmiotowy)</p>
+        <div class="block bl-purple"><h4>Filozofia przedmiotu (do XV w.)</h4><p>Świat materialny poza podmiotem</p></div>
+        <div class="block bl-teal"><h4>Filozofia podmiotu (XV–XIX/XX w.)</h4><p>Podmiot poznania, prawdziwość i obiektywność</p></div>
+        <div class="block bl-amber"><h4>Filozofia podmiotowości (XIX–XX w.)</h4><p>Tożsamość, sprawczość, autonomia</p></div>
+        <p class="nav-label" style="margin-top:0.75rem;margin-bottom:0.4rem">Światopogląd vs. Ideologia</p>
+        <div class="block bl-gray"><p><strong>Światopogląd</strong> = względnie stały zespół sądów o świecie; <strong>Ideologia</strong> = wspólnota światopoglądów z elementem PRZEMOCY dla realizacji interesu grupowego</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAROŻYTNOŚĆ -->
+<div id="page-ancient" class="page">
+  <h2 class="page-title">Starożytność</h2>
+  <p class="page-sub">Sofiści · Sokrates · Platon · Arystoteles · Hellenizm</p>
+
+  <div class="card">
+    <h3>Sofiści (V w. p.n.e.)</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:0.75rem">Wędrowni nauczyciele retoryki i filozofii. Krytykowani za relatywizm i pobieranie opłat.</p>
+    <table><tr><th>Pogląd</th><th>Treść</th></tr>
+    <tr><td><strong>Sensualizm</strong></td><td>Prawdziwą wiedzę poznajemy przez zmysły</td></tr>
+    <tr><td><strong>Relatywizm</strong></td><td>Prawda zależy od punktu widzenia — każdy widzi inaczej</td></tr>
+    <tr><td><strong>Konwencjonalizm</strong></td><td>Nie ma prawd powszechnych — są tylko umowy społeczne</td></tr>
+    <tr><td><strong>Pragmatyzm</strong></td><td>Ważna jest prawda praktyczna</td></tr>
+    <tr><td><strong>Izostenia</strong></td><td>Każdemu twierdzeniu można przeciwstawić równie silne</td></tr></table>
+    <p style="font-size:0.8rem;color:var(--text2);margin-top:0.75rem"><strong style="color:var(--text)">Religia:</strong> Krycjasz — wymysł zmuszający do moralności; Prodikos — wyraz uczuć (wdzięczności)</p>
+  </div>
+
+  <div class="card">
+    <h3>Sokrates (470/469–399 p.n.e.)</h3>
+    <div class="grid2">
+      <div class="block bl-teal"><h4>Intelektualizm etyczny</h4><ul><li>Cnota = dobro bezwzględne i najwyższe</li><li>Najwyższa cnota = umiar</li><li>Wszelkie zło pochodzi z <strong>niewiedzy</strong></li><li>Cnota jest wiedzą → można się jej nauczyć</li></ul></div>
+      <div class="block bl-teal"><h4>Dwie metody</h4><ul><li><strong>Elenktyczna</strong> (ironia) — doprowadzanie do absurdu → ujawnienie pozorów wiedzy, oczyszczenie umysłu</li><li><strong>Majeutyczna</strong> (położnicza) — wydobywanie prawdy pytaniami; „każdy nosi w sobie wiedzę, lecz jej nie uświadamia"</li></ul></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Platon (427–347 p.n.e.) — Akademia Platońska 388/387 p.n.e.</h3>
+    <div class="grid2">
+      <div class="block bl-purple"><h4>Teoria poznania</h4><ul><li><strong>Doksa</strong> = zmysłowe, niepewne, złudne</li><li><strong>Episteme</strong> = rozumowe, niezawodne, pewne</li><li><strong>Anamneza</strong> = wiedza to przypominanie idei z poprzedniego życia duszy</li><li><strong>Mit jaskini:</strong> cienie (zmysły) → słońce (idee, Idea Dobra)</li></ul></div>
+      <div class="block bl-purple"><h4>Teoria idei</h4><ul><li>Dwa byty: zniszczalny (rzeczy) i niezniszczalny (idee)</li><li>Idee = prawdziwe byty; rzeczy = ich cień/odbicie</li><li>Hierarchia: na szczycie Idea Dobra</li><li>Demiurg stworzył świat wg wzoru idei</li></ul></div>
+      <div class="block bl-purple"><h4>Trzy części duszy</h4><ul><li>Rozumna → Mądrość → Władcy (filozofowie)</li><li>Zmysłowa/popędliwa → Męstwo → Strażnicy</li><li>Wegetatywna/pożądliwa → Umiarkowanie → Robotnicy</li><li>Wszystkie razem → <strong>Sprawiedliwość</strong></li></ul></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Arystoteles (384–322 p.n.e.)</h3>
+    <p style="font-size:0.8rem;color:var(--text3);margin-bottom:0.75rem">Empiryzm genetyczny: „Nie ma tego w umyśle, czego wpierw nie było w zmyśle" — umysł = <strong style="color:var(--text2)">tabula rasa</strong></p>
+    <div class="grid2">
+      <div>
+        <div class="block bl-amber"><h4>Trzy teorie bytu</h4><ul><li><strong>Akt i możność</strong> — możność = zdolność do stawania się; akt = urzeczywistnienie potencji</li><li><strong>Forma i materia</strong> — forma = istota rzeczy; materia = podłoże; razem = substancja</li><li><strong>Substancja i przypadłości</strong> — samodzielny byt + jego cechy</li></ul></div>
+        <div class="block bl-amber"><h4>Cztery przyczyny</h4><ul><li>Materialna (z czego)</li><li>Formalna (czym jest, istota)</li><li>Sprawcza (kto wytworzyło)</li><li>Celowa (po co, jaki cel)</li></ul></div>
+      </div>
+      <div>
+        <div class="block bl-green"><h4>Etyka — Złoty środek</h4><table style="margin-top:0.25rem"><tr><th>Nadmiar</th><th>CNOTA</th><th>Niedomiar</th></tr>
+        <tr><td>Brawura</td><td>Męstwo</td><td>Tchórzostwo</td></tr>
+        <tr><td>Rozwiązłość</td><td>Umiarkowanie</td><td>Niewrażliwość</td></tr>
+        <tr><td>Rozrzutność</td><td>Szczodrość</td><td>Chciwość</td></tr></table>
+        <p style="font-size:0.75rem;color:var(--text3);margin-top:0.4rem">Przyjaźń i sprawiedliwość NIE są cnotami</p></div>
+        <div class="block bl-green"><h4>Teoria państwa</h4><ul><li>Prawidłowe: Monarchia · Arystokracja · Politeia</li><li>Zwyrodniałe: Tyrania · Oligarchia · Demokracja</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Hellenizm — trzy szkoły</h3>
+    <div class="grid3">
+      <div class="block bl-gray"><h4>Stoicyzm (Zenon)</h4><ul><li>Materializm + Panteizm (świat = boski organizm)</li><li>Materia + pneuma (dwa pierwiastki)</li><li>Etyka: życie zgodne z naturą</li><li>Afekty = choroba duszy</li><li>Cel: <strong>ataraksja</strong></li></ul></div>
+      <div class="block bl-gray"><h4>Epikureizm (Epikur)</h4><ul><li>Hedonizm: szczęście = przyjemność</li><li>Do szczęścia wystarczy brak cierpienia</li><li>4 lęki: śmierć · bogowie · cierpienie · niemożność szczęścia</li><li>Sensualizm epistemologiczny</li></ul></div>
+      <div class="block bl-gray"><h4>Sceptycyzm (Pyrron)</h4><ul><li>Nie wiemy, jakie są własności rzeczy</li><li><strong>Epoché</strong> = powstrzymanie od sądów</li><li><strong>Izostenia</strong> = równosilność sądów</li><li>Efekt: spokój i szczęście</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ŚREDNIOWIECZE -->
+<div id="page-medieval" class="page">
+  <h2 class="page-title">Średniowiecze</h2>
+  <p class="page-sub">Plotyn · Augustyn · Anzelm · Tomasz z Akwinu · Ockham</p>
+
+  <div class="card"><h3>Plotyn (ok. 203–270) — Neoplatonizm · Enneady</h3>
+    <div class="grid2">
+      <div class="block bl-purple"><h4>Jedno i hipostazy</h4><ul><li>Jedno = nieskończona moc wytwarzająca; definiowane przez zaprzeczenie (via negativa)</li><li>Trzy hipostazy: <strong>Duch (nous)</strong> · <strong>Dusza</strong> · <strong>Materia</strong></li></ul></div>
+      <div class="block bl-purple"><h4>Droga wzwyż duszy</h4><ul><li>Wysiłek poznawczy (ekstaza/zachwycenie)</li><li>Wysiłek estetyczny (sztuka)</li><li>Wysiłek moralny (cnoty oczyszczające)</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>Św. Augustyn (354–430) — Patrystyka</h3>
+    <p style="font-size:0.8rem;color:var(--text3);margin-bottom:0.75rem">Dzieła: Wyznania · O państwie Bożym</p>
+    <div class="grid2">
+      <div class="block bl-coral"><h4>Iluminacja i dusza</h4><ul><li>Bóg pośrednio oświeca umysł → wiedza niezależna od doświadczenia</li><li>Cel życia: poznanie Boga i duszy</li><li>Dusza: nieśmiertelna, niezależna od ciała</li></ul></div>
+      <div class="block bl-coral"><h4>Zło i państwo</h4><ul><li>Zło = dzieło wolnych stworzeń; brak dobra (nie jest realne)</li><li>Kościół i cesarstwo: oddzielne i autonomiczne</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>Św. Anzelm z Canterbury (1033–1109)</h3>
+    <p style="font-size:0.85rem;margin-bottom:0.75rem"><em style="color:var(--accent2)">Credo ut intelligam</em> — wierzy się, by rozumieć; wiara wyprzedza i normuje rozum</p>
+    <div class="block bl-teal"><h4>Dowód ontologiczny</h4><ul><li>Bóg = byt, od którego większy nie może być pojęty</li><li>Gdyby istniał tylko w umyśle → można by pomyśleć coś większego (istniejące realnie)</li><li>Sprzeczność → <strong>Bóg z konieczności istnieje realnie</strong></li></ul></div>
+  </div>
+  <div class="card"><h3>Św. Tomasz z Akwinu (1225–1274) — Tomizm · Suma teologiczna</h3>
+    <div class="grid2">
+      <div class="block bl-amber"><h4>Metafizyka</h4><ul><li>Byt = <strong>istota</strong> (możność) + <strong>istnienie</strong> (akt)</li><li>Bóg = <em>ipsum esse subsistens</em> (jedyny byt: istota = istnienie)</li><li>Transcendentalia: Ens · Res · Unum · Aliquid · Bonum · Verum · Pulchrum</li></ul></div>
+      <div class="block bl-amber"><h4>Pięć dróg</h4><ul><li>Ex motu — z ruchu → pierwszy poruszyciel</li><li>Ex causae — z przyczynowości → pierwsza przyczyna</li><li>Ex possibili — z przygodności → byt konieczny</li><li>Ex gradibus — ze stopni doskonałości</li><li>Ex gubernatione — z celowości świata</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>Wilhelm Ockham (ok. 1287–1347) — Nominalizm</h3>
+    <div class="grid2">
+      <div class="block bl-gray"><h4>Główne tezy</h4><ul><li>Intuicjonizm: podstawa nauki = intuicja, nie rozum</li><li>Psychologizm: pojęcia ogólne nie mają realnych odpowiedników — twory umysłu</li><li>Woluntaryzm: własności bytu zależą od woli (przede wszystkim Bożej)</li></ul></div>
+      <div class="block bl-gray"><h4>Brzytwa Ockhama</h4><ul><li>Nie mnożyć bytów ponad konieczność</li><li>Nie doszukiwać się zjawisk tam, gdzie niepotrzebne</li><li>Dążyć do rozwiązań najprostszych</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOWOŻYTNOŚĆ -->
+<div id="page-modern" class="page">
+  <h2 class="page-title">Nowożytność</h2>
+  <p class="page-sub">Bacon · Kartezjusz · Locke · Berkeley · Hume · Kant</p>
+
+  <div class="card"><h3>Franciszek Bacon (1561–1626) — Empiryzm</h3>
+    <div class="grid2">
+      <div class="block bl-teal"><h4>4 Idola (złudzenia)</h4><ul><li><strong>Tribus</strong> (plemienne) — antropomorfizm, szukanie regularności</li><li><strong>Specus</strong> (jaskini) — wynikają z wychowania i otoczenia</li><li><strong>Fori</strong> (rynkowe) — słowa bez odpowiednika w rzeczywistości</li><li><strong>Theatri</strong> (teatru) — błędy konkretnej tradycji filozoficznej</li></ul></div>
+      <div class="block bl-teal"><h4>Indukcja eliminacyjna</h4><ul><li>Tablica <strong>obecności</strong> — gdzie Z występuje</li><li>Tablica <strong>nieobecności</strong> — gdzie Z nie występuje</li><li>Tablica <strong>zmian towarzyszących</strong> — jak Z zmienia się ze zjawiskiem</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>René Descartes / Kartezjusz (1596–1650)</h3>
+    <div class="grid2">
+      <div class="block bl-purple"><h4>Metoda i cogito</h4><ul><li>4 reguły: jasność · dzielenie trudności · porządek · wyszczególnienia</li><li>Sceptycyzm metodyczny: 3 złudzenia (zmysły, sen, zły demon) — punkt wyjścia, nie wynik</li><li><strong>Cogito ergo sum</strong> — wątpię → myślę → jestem</li></ul></div>
+      <div class="block bl-purple"><h4>Dualizm i idee</h4><ul><li><em>Res cogitans</em> (dusza) = myślenie, wola, uczucie</li><li><em>Res extensa</em> (ciało) = rozciągłość, mechanizm</li><li>3 rodzaje idei: wrodzone · nabyte · skonstruowane</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>Empiryzm brytyjski</h3>
+    <div class="grid3">
+      <div class="block bl-amber"><h4>Locke (1632–1704)</h4><ul><li>Tabula rasa: umysł = niezapisana tablica</li><li><em>Nihil est in intellectu quod non fuerit antea in sensu</em></li><li>Własności: pierwotne (obiektywne) / wtórne (subiektywne)</li><li>Substancja = niepoznawalna</li></ul></div>
+      <div class="block bl-amber"><h4>Berkeley (1685–1753)</h4><ul><li><strong>Esse = percipi</strong> (istnieć = być postrzeganym)</li><li>Substancji nie ma; ciała = zespoły jakości zmysłowych</li><li>Trwałość rzeczy: Bóg je wciąż postrzega</li></ul></div>
+      <div class="block bl-amber"><h4>Hume (1711–1776)</h4><ul><li>Wrażenia (impresje) = pierwotne; idee = pochodne</li><li>Przyczynowość = przyzwyczajenie, nie doświadczenie</li><li>Wnioskowanie o przyczynowości = akt wiary</li><li><strong>Gilotyna Hume'a:</strong> od „jest" nie można dojść do „powinno być"</li></ul></div>
+    </div>
+  </div>
+  <div class="card"><h3>Immanuel Kant (1724–1804) — Transcendentalizm · Deontologia</h3>
+    <div class="grid2">
+      <div>
+        <div class="block bl-green"><h4>Teoria sądów</h4><table><tr><th></th><th>Analityczne</th><th>Syntetyczne</th></tr>
+        <tr><td><strong>A priori</strong></td><td>1 km = 1000 m</td><td><span style="color:var(--accent2)">⭐ CEL FILOZOFII (Pitagoras)</span></td></tr>
+        <tr><td><strong>A posteriori</strong></td><td>Nie istnieją</td><td>Zebra to koń w paski</td></tr></table></div>
+        <div class="block bl-green"><h4>Trzy władze poznawcze</h4><ul><li>Zmysły → czas i przestrzeń (formy naoczności)</li><li>Rozsądek → 12 kategorii (substancja, przyczyna…)</li><li>Rozum → idee: dusza, wszechświat, Bóg</li><li>Noumeny (niepoznawalne) vs. fenomeny (poznawalne)</li></ul></div>
+      </div>
+      <div>
+        <div class="block bl-green"><h4>Deontologia — imperatyw kategoryczny</h4><ul><li>Jedyne bezwzględne dobro: <strong>dobra wola</strong></li><li>Człowiek moralny działa <strong>z obowiązku</strong> (nie dla zysku ani strachu)</li><li>Imperatyw kategoryczny: „Postępuj tak, abyś mógł chcieć, by zasady twoje stały się prawem powszechnym"</li><li>Zasada człowieczeństwa: używaj człowieczeństwa zawsze jako celu, nigdy jako środka</li><li>Imp. hipotetyczny (jeśli…to) vs. <strong>kategoryczny</strong> = moralny</li></ul></div>
+        <div class="block bl-green"><h4>Estetyka</h4><p>Upodobanie estetyczne = bezinteresowne + bezpojęciowe + formalne</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- XIX–XX W. -->
+<div id="page-contemp" class="page">
+  <h2 class="page-title">Filozofia XIX–XX w.</h2>
+  <p class="page-sub">Filozofia człowieka · Filozofia nauki · Herbart · Wundt</p>
+
+  <div class="card"><h3>Filozofia człowieka</h3>
+    <div class="grid2">
+      <div class="block bl-coral"><h4>Schopenhauer (1788–1860) — Woluntaryzm</h4><ul><li>Wola = niezaspokojony popęd → cierpienie</li><li>Człowiek = ujednostkowienie woli życia</li><li>Radzenie sobie: moralnie (wyzbycie pożądań) · estetycznie (kontemplacja sztuki)</li></ul></div>
+      <div class="block bl-coral"><h4>Nietzsche (1844–1900) — Nihilizm</h4><ul><li>Prawda = subiektywna, względna; umysł zawsze <strong>fałszuje</strong> rzeczywistość</li><li>Resentyment = narzucenie woli słabych silnym</li><li>Apolliński (harmonia) vs. <strong>dionizyjski</strong> (pełnia życia) — Nietzsche po stronie dionizyjskiej</li><li>3 wartości: życie · wolność silnego · nierówność</li></ul></div>
+      <div class="block bl-purple"><h4>Kierkegaard (1813–1855) — Egzystencjalizm</h4><ul><li>Egzystencja = nieustanne stawanie się; tylko jednostkowe</li><li>Prawda subiektywna = prawda dla mnie, mająca dla mnie znaczenie</li><li>3 stadia: estetyczne (zmysły) → etyczne (wybór) → religijne (wiara)</li></ul></div>
+      <div class="block bl-teal"><h4>Buber (1878–1965) i Levinas (1906–1995)</h4><ul><li>Buber: Ja-Ono (monolog z rzeczami) vs. Ja-Ty (dialog z osobą); Bóg = Ty wieczne</li><li>Levinas: Oblicze = manifestacja narzucająca odpowiedzialność</li><li>Substytucja = odpowiedzialność aż do zastąpienia Innego</li><li>Drugi = odpowiedzialność; Trzeci = sprawiedliwość</li></ul></div>
+      <div class="block bl-teal"><h4>Husserl (1859–1938) — Fenomenologia</h4><ul><li>Świadomość zawsze jest „ku czemuś" = intencjonalna</li><li>Noeza (akt myślenia) · Noemat (to, co myślane)</li><li>Epoché = ujęcie świata w nawias; filozofia jako dystans</li></ul></div>
+    </div>
+  </div>
+
+  <div class="card"><h3>Filozofia nauki</h3>
+    <div class="grid2">
+      <div class="block bl-amber"><h4>Comte (1798–1857) — Pozytywizm</h4><ul><li>3 fazy: teologiczna → metafizyczna → pozytywna</li><li>Nauki: Matematyka → Astronomia → Fizyka → Biologia → Socjologia</li><li>Hasło: żyć dla innych · ludzkość, porządek i postęp</li></ul></div>
+      <div class="block bl-amber"><h4>Wundt (1832–1920)</h4><ul><li>Psychologia = analizowanie procesów duchowych eksperymentalnie</li><li>3 fazy poznania: postrzeżenia → pojęcia ogólne → światopogląd</li><li>Heterogenia celów: działania → nieprzewidziane skutki → nowe cele</li></ul></div>
+      <div class="block bl-amber"><h4>Herbart (1776–1841)</h4><ul><li>Monady: przedmioty = kompleksy monad; jaźń = monada wieczna</li><li>5 idei etycznych: wolność wewnętrzna · doskonałość · życzliwość · prawo · sprawiedliwość</li><li>Pedagogika: etyka (cele) + psychologia (środki)</li></ul></div>
+      <div class="block bl-amber"><h4>Popper (1902–1994) i Kuhn (1922–1996)</h4><ul><li>Popper: <strong>falsyfikacjonizm</strong> — wiedza rośnie przez obalanie hipotez</li><li>3 światy: fizyczny · duchowy · intelligibiliów</li><li>Kuhn: <strong>paradygmat</strong> = normy i wzorce praktyki naukowej</li><li>Nauka normalna → kryzys → rewolucja naukowa → nowy paradygmat</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILOZOFIA POLSKA -->
+<div id="page-polish" class="page">
+  <h2 class="page-title">Filozofia polska XIX–XXI w.</h2>
+  <p class="page-sub">Kliknij filozofa, by zobaczyć szczegóły</p>
+
+  <div class="card">
+    <h3>Okresy filozofii polskiej w XX w.</h3>
+    <div class="timeline" style="margin-top:0.75rem">
+      <div class="tl-row"><span class="tl-tag tag tag-gray">1900–1918</span><p class="tl-text"><strong>Okres I</strong> — brak państwowości polskiej; ścieranie się kierunków europejskich</p></div>
+      <div class="tl-row"><span class="tl-tag tag tag-teal">1918–1939</span><p class="tl-text"><strong>Okres II</strong> — rozkwit uczelni i miast akademickich; język polski jako wykładowy</p></div>
+      <div class="tl-row"><span class="tl-tag tag tag-amber">1939–1950</span><p class="tl-text"><strong>Okres III</strong> — ingerencja władz PRL; rozkwit ideologii marksistowskiej</p></div>
+      <div class="tl-row"><span class="tl-tag tag tag-coral">1945–1979</span><p class="tl-text"><strong>Okres IV</strong> — marksistowska interpretacja; wyjątek: KUL i ATK Warszawa</p></div>
+      <div class="tl-row"><span class="tl-tag tag tag-purple">1979–</span><p class="tl-text"><strong>Okres V</strong> — otwartość na poglądy i nurty zachodniej Europy</p></div>
+    </div>
+  </div>
+
+  <div class="phil-grid" id="polish-grid"></div>
+  <div class="detail-panel" id="polish-detail">
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+    <div id="polish-detail-content"></div>
+  </div>
+</div>
+
+<!-- FILOZOFIA SPOŁECZNA -->
+<div id="page-social" class="page">
+  <h2 class="page-title">Filozofia społeczna XIX–XX w.</h2>
+  <p class="page-sub">Utylitaryzm · Pragmatyzm · Hegel · Feuerbach · Marks · Spencer</p>
+  <div id="social-content"></div>
+</div>
+
+<!-- FISZKI -->
+<div id="page-flash" class="page">
+  <h2 class="page-title">Fiszki</h2>
+  <div class="fc-controls">
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      <select class="select" id="fc-filter" onchange="filterFC()">
+        <option value="all">Wszystkie tematy</option>
+        <option value="ancient">Starożytność</option>
+        <option value="medieval">Średniowiecze</option>
+        <option value="modern">Nowożytność</option>
+        <option value="contemp">XIX–XX w.</option>
+        <option value="polish">Filozofia polska</option>
+        <option value="social">Filozofia społeczna</option>
+      </select>
+      <button class="btn" onclick="shuffleFC()">🔀 Losuj</button>
+    </div>
+    <span id="fc-counter" style="font-size:0.82rem;color:var(--text2)"></span>
+  </div>
+  <div class="fc-scene" onclick="flipFC()">
+    <div class="fc-card" id="fc-card">
+      <div class="fc-face fc-front">
+        <p class="fc-label">PYTANIE</p>
+        <p class="fc-text" id="fc-q"></p>
+        <p class="fc-hint">kliknij, by zobaczyć odpowiedź</p>
+      </div>
+      <div class="fc-face fc-back">
+        <p class="fc-label">ODPOWIEDŹ</p>
+        <p class="fc-text" id="fc-a"></p>
+      </div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn" onclick="prevFC()">← poprzednia</button>
+    <span class="fc-counter" id="fc-counter2"></span>
+    <button class="btn" onclick="nextFC()">następna →</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="fc-progress"></div></div>
+</div>
+
+<!-- QUIZ -->
+<div id="page-quiz" class="page">
+  <h2 class="page-title">Quiz</h2>
+  <p class="page-sub">15 losowych pytań z całego materiału</p>
+  <div style="margin-bottom:1rem"><button class="btn btn-accent" onclick="initQuiz()">🔄 Nowy quiz</button></div>
+  <div id="quiz-content"></div>
+  <div class="score-panel" id="score-panel">
+    <div class="score-big" id="score-num"></div>
+    <p class="score-msg" id="score-msg"></p>
+    <button class="btn btn-accent" style="margin-top:1.25rem" onclick="initQuiz()">Zacznij od nowa</button>
+  </div>
+</div>
+
+<!-- SŁOWNIK -->
+<div id="page-glos" class="page">
+  <h2 class="page-title">Słownik pojęć</h2>
+  <input type="text" class="search-bar" id="glos-search" placeholder="Szukaj pojęcia, filozofa, definicji…" oninput="filterGlos()">
+  <div class="filter-pills" id="glos-pills"></div>
+  <div class="glos-table" id="glos-table"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ---- NAVIGATION ----
+function go(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ---- DATA ----
+const polishPhils = [
+  { id: 'elz', name: 'Henryk Elzenberg', years: '1887–1967', area: 'Aksjologia',
+    dziela: ['Kłopot z istnieniem — dziennik filozoficzny 1907–1964', 'Próby kontaktu (1965)', 'Wartość i człowiek (1966)'],
+    kv: [
+      ['Wartość perfekcyjna', 'Dwa znaczenia wartości: utylitarne (względna, instrumentalna) i perfekcyjne (bezwzględna). Tylko perfekcyjna jest prawdziwą kategorią aksjologiczną — nadrzędną wobec etycznej i estetycznej.'],
+      ['System aksjologiczny', 'Merytoryczna (twierdzenia o wartości konkretnych stanów) + Formalna z trzema działami: logika wartości · epistemologia wartości · antropologia wartości.'],
+      ['Homo ethicus', 'Człowiek pragnący możliwie największej przewagi dobra nad złem. Dwie postawy: meliorystyczna (realizowanie dobra) i soteryczna (wyzbywanie się zła).'],
+      ['Poznanie wartości', 'Nie przez indukcję, lecz przez „olśnienie" — ta cecha nie może nie być połączona z wartością; związek między nimi jest konieczny. Przedmiot wartościowy to taki, jaki powinien być.'],
+    ]},
+  { id: 'slw', name: 'Szkoła Lwowsko-Warszawska', years: '~1900–1939+', area: 'Logika, analityczna',
+    dziela: ['Założyciel: Kazimierz Twardowski (1866–1938)', 'Ponad 100 myślicieli', 'Logiczna szkoła warszawska: Tarski · Łukasiewicz · Leśniewski'],
+    kv: [
+      ['Twardowski — język i myśl', 'Myśl wyraża się w języku. Myślenie = bezgłośne wypowiadanie słów do siebie. Kto jasno myśli → może jasno mówić. Kto nie potrafi → myśli mętnie. Akt + treść + przedmiot (rozwinięcie Brentana o treść).'],
+      ['Łukasiewicz — logika', 'Trzecia wartość logiczna obok prawdy i fałszu: możliwość. „Miękki" determinista. 4 rodzaje rozumowań: wnioskowanie (następstwa dla racji pewnych) · sprawdzanie · tłumaczenie · dowodzenie.'],
+      ['Kotarbiński — etyka', '3 działy: felicytologia (szczęście) · prakseologia (skuteczne działanie) · deontologia (porządny człowiek). Etyka niezależna od religii i metafizyki. Opiekun spolegliwy = wzorzec etyczny.'],
+      ['Ajdukiewicz — znaczenie', 'Dyrektywna koncepcja: znaczenie = słownictwo + składnia + sposób użycia. 3 dyrektywy: aksjomatyczne · dedukcyjne · empiryczne. Holistyczna teoria: obraz świata = doświadczenie + aparatura pojęciowa.'],
+    ]},
+  { id: 'tisch', name: 'Józef Tischner', years: '1931–2000', area: 'Dialog, wolność',
+    dziela: ['Etyka Solidarności (1981)', 'Myślenie według wartości (1982)', 'Filozofia Dramatu (1990)', 'Nieszczęsny dar wolności (1993)'],
+    kv: [
+      ['Wolność i wspólnota', 'Nikt nie może być wolny w samotności. Wolność realizuje się w spotkaniu z Innym. Wydojrzewa od Ja do Ty, od Ty do Ja, do My. „Zwieńczeniem wolności jest My."'],
+      ['3 typy społeczeństw', 'Dialogiczne (otwarte, swobodna wymiana, prawdomówność) · Monologiczne (odpowiedź z góry, np. komunizm) · Milczące (brak komunikacji i zainteresowania).'],
+      ['Naród vs. ojczyzna', 'Naród = wyłącznie wspólnota etniczna. Ojczyzna = moralne zjednoczenie + zbiorowy obowiązek. Przejście od narodu do ojczyzny musi być dobrowolne — jak obietnica ku wolności.'],
+      ['Filozofia dramatu', 'Każda wolność pociąga odpowiedzialność. Egzystencja = ciągły wybór dobra lub zła. Zagrożenia wewnętrzne (lęk, emocje) i zewnętrzne (przemoc). Spotkanie Drugiego może stać się dramatem.'],
+      ['Kompromis i dialog', 'Kompromis możliwy gdy poświęcamy niższe (witalne: zdrowie, życie) dla wyższych (duchowych: godność, dobro). Dialog: tylko między wolnymi; wymaga otwarcia, słuchania, prawdomówności. Kłamstwo = niemożność dialogu.'],
+    ]},
+  { id: 'bank', name: 'Józef Bańka', years: '1934–2019', area: 'Recentywizm',
+    dziela: ['Filozofia techniki (1980)', 'Ja teraz — U źródeł filozofii człowieka (1983)', 'Ontologia bytu aktualnego (1986)'],
+    kv: [
+      ['Fakt ludzki', 'Podstawowa kategoria: człowiek nie może poznawać rzeczywistości w oderwaniu od siebie. Fakt ludzki = przeżycie psychiczne będące własnością czyjegoś „ja" — czyjś akt sądzenia.'],
+      ['Recentywizm — zasada', 'Reguła pierwszeństwa doznania teraźniejszości nad innymi formami czasu. Byt = to, co przeżywamy jako „teraz". Ja = racja istnienia historii (pamięć) i przyszłości (przewidywanie).'],
+      ['Trzy horyzonty czasu', 'Przeszłość = dolny horyzont; otwarty epistemologicznie, zamknięty ontycznie. Przyszłość = górny horyzont; otwarty ontycznie, zamknięty epistemologicznie. Teraźniejszość (ens ut recens) = oba otwarte.'],
+      ['Moment recentywistyczny', '„Teraz" znane tylko przez świadomość w akcie uwagi. To, co niezdeterminowane, staje się zdeterminowane = rzeczywistym. Obiektywne = „powszechnie subiektywne".'],
+      ['Etyka prostomyślności', 'Zdolność uchwycenia niepowtarzalnego sensu własnej sytuacji. Człowiek może z łatwością odróżnić etyczne od nieetycznego. Postawa prostomyślna: przyjmuje się ją, nie uzasadnia.'],
+    ]},
+  { id: 'kolak', name: 'Leszek Kołakowski', years: '1927–2009', area: 'Filozofia religii',
+    dziela: ['Kultura i fetysze (1967)', 'Obecność mitu (1972)', 'Jeśli Boga nie ma… (1987)'],
+    kv: [
+      ['Lęk i transcendencja', 'Świadomość siebie → obraz świata jako radykalnie obcego → lęk. Afirmacja indywidualnego życia możliwa tylko przez reintegrację z rzeczywistością nieskończoną.'],
+      ['Źródła religii', 'Potrzeba religii = konsekwencja alienacji człowieka wobec natury. Sens pochodzi od sacrum — żadne badanie empiryczne go nie wytworzy. Obecność Boga w świadomości = źródło upodmiotowienia.'],
+      ['Mit', 'Tłumaczy sens obojętności świata. Mit = przekonanie wychodzące poza skończone doświadczenie. Relatywizuje wszelkie doświadczenie, odnosząc je do realiów niepasujących logicznie do opisu empirycznego.'],
+      ['Religia', 'Własna, nierozkładalna rzeczywistość kulturowa. Nie można jej wyjaśnić przez czynniki genetyczne. Zrozumieć = wskazać jej intencjonalny przedmiot, który decyduje o jakości postawy religijnej.'],
+    ]},
+  { id: 'wojt', name: 'Karol Wojtyła / Jan Paweł II', years: '1920–2005', area: 'Personalizm',
+    dziela: ['Miłość i odpowiedzialność (1960)', 'Osoba i czyn (1969)', 'Elementarz etyczny (1983)', 'Pamięć i tożsamość (2005)'],
+    kv: [
+      ['Personalizm', 'Nauka o osobie jako podmiocie i przedmiocie działania, podmiocie uprawnień. Źródła: Boecjusz (rationalis naturae individua substantia) + Tomasz z Akwinu.'],
+      ['Osoba i czyn', 'Manifestacją człowieczeństwa jest świadome, wolne i odpowiedzialne działanie (ludzki czyn). Czyn = ja jestem sprawcą (rys sprawczości). Uczynnienie = zdarzenia poza wolą. Owocem czynu jest moralność.'],
+      ['Samopoznanie i samorealizacja', 'Ustawiczna możliwość „rozwijania siebie" w kierunku zdolności intelektualnych, etycznych i twórczych. Konieczność wyjścia naprzeciw drugiemu. Dynamiczna struktura: intelekt + wola + sumienie.'],
+      ['Wartość personalistyczna', 'W czynie osoba aktualizuje siebie samą — wyraża strukturę samoposiadania. Wartość etyczna wyrasta na podłożu personalistycznej i ją przenika.'],
+      ['Neotomizm — 4 zasady', '1. Metafizyka jako fundament filozofii. 2. Metafizyka jako narzędzie ostatecznego wyjaśnienia. 3. Względna niezależność rozumu od Objawienia. 4. Troska o metodologię metafizyki.'],
+    ]},
+];
+
+const socialData = [
+  { name: 'Jeremy Bentham (1748–1832) — Utylitaryzm', color: 'bl-teal', items: [
+    ['Hedonizm utylitarystyczny', 'Dobro = wyłącznie przyjemność · zło = cierpienie. Charakter ilościowy — rodzaj przyjemności obojętny.'],
+    ['7 wymiarów przyjemności', 'Intensywność · Trwanie · Pewność · Bliskość (odległość w czasie) · Płodność (inne przyjemności) · Czystość (brak przykrości) · Zasięg (ilość osób)'],
+    ['Zasada użyteczności', '„Największa ilość przyjemności największej ilości istot". Ocena postępków wg wpływu na szczęście zainteresowanych. Rachunek przyjemności zamiast intuicji.'],
+    ['Natura człowieka', 'Wszyscy z natury podobni i równi. Jedyny cel: jak najwięcej przyjemności. Natura kształtowalna przez wychowanie.'],
+  ]},
+  { name: 'William James (1842–1910) — Pragmatyzm', color: 'bl-purple', items: [
+    ['Pragmatyzm', 'Metoda filozoficzna oceniająca twierdzenia wg praktycznych konsekwencji. Prawda uzależniona od użyteczności — „względność prawdy".'],
+    ['Trzy koncepcje prawdy', 'Klasyczna (Tomasz: adekwacja sądu z rzeczywistością) · Koherentna (Russell: spójność przekonań) · Pragmatyczna (James: to, co użyteczne)'],
+    ['Trzy jaźnie', 'Materialna (obiekty fizyczne jako Ja) · Społeczna (samoocena przez kontakty z innymi) · Duchowa (podmiot myślący — „myślenie o sobie jako o myślicielu")'],
+    ['Religia', 'Człowiek stworzył Boga na swoje podobieństwo — nie odwrotnie. Religia zaspokaja odwieczne potrzeby człowieka.'],
+  ]},
+  { name: 'Georg Wilhelm Friedrich Hegel (1770–1831) — Idealizm ewolucyjny', color: 'bl-amber', items: [
+    ['Idealizm', 'Tylko myśl jest pierwotna; byt ma naturę logiczną → podlega prawom logicznym. Byt musi być zmienny — nieustannie wyłania nowe postacie.'],
+    ['Triada heglowska', 'Teza → Antyteza → Synteza (staje się nową Tezą). Naczelne prawo logiki.'],
+    ['Filozofia ducha', 'Duch subiektywny (teza) → Duch obiektywny (prawo, państwo, moralność) → Duch absolutny (sztuka, religia, filozofia)'],
+    ['Trzy działy filozofii', 'Logika (myśl) · Filozofia przyrody · Filozofia ducha'],
+  ]},
+  { name: 'Ludwig Feuerbach (1804–1872) — Materializm', color: 'bl-coral', items: [
+    ['Credo', '„Myśl z bytu, a nie byt z myśli" · „Człowiek jest tym, co zje" — materialność człowieka'],
+    ['Alienacja religijna', 'Wytwory ludzkiego umysłu zaczynają żyć własnym życiem i stają się nadrzędne, obce i wrogie. Bóg = idea nadczłowieka z nieskończonymi atrybutami.'],
+    ['Religia', 'Człowiek stworzył Boga na swoje podobieństwo — nie odwrotnie. Religia zaspokaja odwieczne potrzeby; Bóg = hipostaza miłości człowieka do siebie.'],
+  ]},
+  { name: 'Marks (1818–1883) i Engels (1820–1895) — Materializm dialektyczny', color: 'bl-purple', items: [
+    ['Materializm', 'Materia pierwotna, duch wtórny. Materia w nieustannym ruchu. Motor: walka wewnętrznych przeciwieństw.'],
+    ['Sposób produkcji', 'Siły wytwórcze (ludzie + narzędzia) + stosunki produkcji → determinuje całe społeczeństwo, idee, instytucje.'],
+    ['Determinizm', '„Jaki jest tryb życia ludzi, taki jest też sposób ich myślenia". Idee, polityka, instytucje = nadbudowa nad bazą ekonomiczną.'],
+  ]},
+  { name: 'Herbert Spencer (1820–1903) — Ewolucjonizm społeczny', color: 'bl-green', items: [
+    ['Ewolucja', 'Przebiega na 3 poziomach: nieorganicznym · organicznym · nadorganicznym (społeczeństwo) + wytwory kultury.'],
+    ['3 procesy ewolucji', 'Integracja + dyferencjacja (różnicowanie cech) + wzrost określoności. Ewolucja przeplata się z dysolucją.'],
+    ['Etyka i prawo', 'Etyka „walki o byt": dobre = to, co służy przystosowaniu. Wspierać silnych, nie słabych. Od militaryzmu do industrializmu. 3 rodzaje prawa: powszechne · ogólne · szczegółowe.'],
+  ]},
+];
+
+const allCards = [
+  {q:'Czym jest tabula rasa?',a:'Niezapisana tablica — umysł przed doświadczeniem. Locke: wiedza pochodzi wyłącznie z doświadczenia, nie ma idei wrodzonych (Arystoteles też: umysł na starcie pusty).',cat:'modern'},
+  {q:'Czym różni się doksa od episteme (Platon)?',a:'Doksa = poznanie zmysłowe, niepewne i złudne. Episteme = poznanie rozumowe idei, niezawodne i pewne. Anamneza = wiedza jako przypominanie idei z poprzedniego życia.',cat:'ancient'},
+  {q:'Mit jaskini Platona — co symbolizuje wyjście na słońce?',a:'Przejście od poznania zmysłowego (cienie na ścianie jaskini = doksa) do poznania rozumowego idei (Idea Dobra = słońce = episteme). Filozof wraca, by oświecić innych — lecz jest niezrozumiany.',cat:'ancient'},
+  {q:'4 przyczyny Arystotelesa?',a:'Materialna (z czego zrobione), Formalna (czym jest — istota), Sprawcza (kto wytworzyło), Celowa (po co — jaki cel). Przykład: posąg → marmur · kształt · rzeźbiarz · upamiętnienie.',cat:'ancient'},
+  {q:'Złoty środek Arystotelesa — podaj przykład.',a:'Cnota leży między nadmiarem a niedomiarem wady. Brawura → Męstwo ← Tchórzostwo. Rozrzutność → Szczodrość ← Chciwość. Przyjaźń i sprawiedliwość NIE są cnotami.',cat:'ancient'},
+  {q:'3 szkoły hellenistyczne i ich cel etyczny?',a:'Stoicyzm (ataraksja — spokój ducha przez wyzbycie afektów) · Epikureizm (hedonizm — brak cierpienia wystarczy do szczęścia) · Sceptycyzm (epoché — powstrzymanie od sądów daje spokój).',cat:'ancient'},
+  {q:'Dowód ontologiczny Anzelma?',a:'Bóg = byt, od którego większy nie może być pojęty. Gdyby istniał tylko w umyśle → można by pomyśleć coś większego (istniejące realnie). Sprzeczność → Bóg musi istnieć realnie.',cat:'medieval'},
+  {q:'Pięć dróg Tomasza z Akwinu?',a:'1. z ruchu → pierwszy poruszyciel · 2. z przyczynowości → pierwsza przyczyna · 3. z przygodności → byt konieczny · 4. ze stopni doskonałości → byt najdoskonalszy · 5. z celowości świata',cat:'medieval'},
+  {q:'Co to ipsum esse subsistens (Tomasz)?',a:'Byt, w którym istota = istnienie. Bóg jest jedynym takim bytem — konieczny, prosty, niezależny. U stworzeń istota i istnienie są rozdzielone — istnienie pochodzi z zewnątrz.',cat:'medieval'},
+  {q:'Brzytwa Ockhama?',a:'Nie mnożyć bytów ponad konieczność. Zasada ekonomii myślenia — dążyć do rozwiązań najprostszych. Nie doszukiwać się zjawisk tam, gdzie niepotrzebne.',cat:'medieval'},
+  {q:'4 idola Bacona?',a:'Tribus (plemienne — antropomorfizm) · Specus (jaskini — wychowanie i otoczenie) · Fori (rynkowe — słowa bez odpowiednika) · Theatri (teatru — błędy tradycji filozoficznej).',cat:'modern'},
+  {q:'Cogito ergo sum — jak Kartezjusz do tego doszedł?',a:'Sceptycyzm metodyczny: 3 złudzenia (zmysły, sen, zły demon) — punkt wyjścia, nie wynik. Jedyna pewna rzecz: że wątpię = myślę = jestem. Jaźń (dusza) istnieje niezależnie od ciała.',cat:'modern'},
+  {q:'Esse = percipi (Berkeley)?',a:'Istnieć = być postrzeganym. Substancji materialnej nie ma; ciała = zespoły jakości zmysłowych. Trwałość rzeczy: Bóg je wciąż postrzega, więc istnieją niezależnie od naszego postrzeżenia.',cat:'modern'},
+  {q:'Gilotyna Hume\'a?',a:'Od tego, co „jest" (is), nie można przejść do tego, co „powinno być" (ought). Fakty empiryczne nie implikują norm moralnych. Błąd naturalistyczny Moore\'a: utożsamianie dobra z cechą naturalną.',cat:'modern'},
+  {q:'Syntetyczne a priori Kanta?',a:'Sądy rozszerzające wiedzę (syntetyczne), niezależne od doświadczenia (a priori). Przykład: twierdzenie Pitagorasa. To cel filozofii Kanta — możliwa matematyka i nauka.',cat:'modern'},
+  {q:'Imperatyw kategoryczny Kanta?',a:'„Postępuj tak, abyś mógł chcieć, by zasady twojego postępowania stały się prawem powszechnym." Bezwarunkowy nakaz moralny. Człowiek moralny działa z obowiązku, nie dla zysku ani strachu.',cat:'modern'},
+  {q:'Noumeny vs. fenomeny (Kant)?',a:'Noumeny = rzeczy same w sobie — niepoznawalne. Fenomeny = rzeczy jako zjawiska — poznajemy je przez formy naoczności (czas, przestrzeń) i 12 kategorii rozsądku.',cat:'modern'},
+  {q:'3 stadia Kierkegaarda (w kolejności)?',a:'Estetyczne (życie chwilą i zmysłami, dobre = ładne) → Etyczne (życie wedle dokonanego wyboru; symbol: małżeństwo) → Religijne (subiektywna wiara jako wyjście z rozpaczy — „choroby na śmierć").',cat:'contemp'},
+  {q:'Różnica Ja-Ty vs. Ja-Ono u Bubera?',a:'Ja-Ono = doświadczenie, relacja monologiczna z rzeczami. Ja-Ty = spotkanie, relacja dialogiczna z osobą. „Wszelkie prawdziwe życie jest spotkaniem." Bóg = Ty wieczne.',cat:'contemp'},
+  {q:'Oblicze i substytucja u Levinasa?',a:'Oblicze = manifestacja Innego, która narzuca odpowiedzialność; nie można jej uniknąć. Substytucja = najwyższa forma odpowiedzialności = postawienie siebie w miejsce Innego. Drugi = odpowiedzialność; Trzeci = sprawiedliwość.',cat:'contemp'},
+  {q:'Epoché u Husserla?',a:'Redukcja fenomenologiczna = ujęcie świata w nawias. Odrzucenie przypadkowego i założeń; skupienie na tym, co istotne. Filozofia jako dystans wobec świata, nauki i własnych przekonań.',cat:'contemp'},
+  {q:'Falsyfikacjonizm Poppera?',a:'Wiedza rośnie przez falsyfikację (obalanie hipotez), nie przez ich potwierdzanie. Hipotezy → konsekwencje dedukcyjne → testy empiryczne → próba obalenia. 3 światy: fizyczny · duchowy · intelligibiliów.',cat:'contemp'},
+  {q:'Paradygmat i rewolucja naukowa (Kuhn)?',a:'Paradygmat = zestaw norm i wzorców praktyki naukowej. Nauka normalna → kryzys → rewolucja naukowa (zmiana paradygmatu) → nowa nauka normalna → nowy kryzys. Rozwój nieciągły.',cat:'contemp'},
+  {q:'3 fazy Comte\'a?',a:'Teologiczna (wyjaśnianie przez bogów) → Metafizyczna (przez abstrakcyjne pojęcia) → Pozytywna (twierdzenia wyłącznie oparte na faktach i zależnościach). Hasło: ludzkość, porządek i postęp.',cat:'contemp'},
+  {q:'Zasada użyteczności Benthama?',a:'„Największa ilość przyjemności największej ilości istot." Postępki oceniane wg wpływu na szczęście zainteresowanych. 7 wymiarów przyjemności. Rachunek przyjemności zamiast intuicji.',cat:'social'},
+  {q:'7 wymiarów przyjemności (Bentham)?',a:'Intensywność · Trwanie · Pewność · Bliskość (odległość w czasie) · Płodność (prawdopodobieństwo innych przyjemności) · Czystość (brak przykrości) · Zasięg (ilość osób).',cat:'social'},
+  {q:'3 koncepcje prawdy (James)?',a:'Klasyczna (Tomasz z Akwinu): adekwacja sądu z rzeczywistością. Koherentna (Russell): spójność przekonań tworzących całość. Pragmatyczna (James): to, co użyteczne i pozwala poruszać się po rzeczywistości.',cat:'social'},
+  {q:'Triada heglowska?',a:'Teza → Antyteza → Synteza (która staje się nową Tezą). Filozofia ducha: subiektywny → obiektywny (prawo, państwo, moralność) → absolutny (sztuka, religia, filozofia).',cat:'social'},
+  {q:'Alienacja religijna wg Feuerbacha?',a:'Wytwory umysłu (Bóg) zaczynają żyć własnym życiem i stają się nadrzędne, obce i wrogie wobec twórcy. Człowiek stworzył Boga na swoje podobieństwo. Religia zaspokaja potrzeby człowieka.',cat:'social'},
+  {q:'Wartość perfekcyjna Elzenberga?',a:'Wartość bezwzględna — jedyna prawdziwa kategoria aksjologiczna. Nadrzędna wobec etycznej i estetycznej. W odróżnieniu od utylitarnej (względna, instrumentalna).',cat:'polish'},
+  {q:'Naczelna zasada recentywizmu Bańki?',a:'Reguła pierwszeństwa doznania teraźniejszości nad innymi formami czasu. Byt = to, co przeżywamy jako „teraz". Ja = racja istnienia historii (pamięć) i przyszłości (przewidywanie).',cat:'polish'},
+  {q:'Jak Tischner rozumie wolność?',a:'Nikt nie może być wolny w samotności. Wolność realizuje się przez spotkanie z Innym. „Wydojrzewa od Ja do Ty, od Ty do Ja, do My. Zwieńczeniem wolności jest My."',cat:'polish'},
+  {q:'3 typy społeczeństw wg Tischnera?',a:'Dialogiczne (otwarte, swobodna wymiana, brak kłamstwa) · Monologiczne (odpowiedź z góry, np. komunizm) · Milczące (brak komunikacji i zainteresowania).',cat:'polish'},
+  {q:'Różnica naród vs. ojczyzna (Tischner)?',a:'Naród = wyłącznie wspólnota etniczna. Ojczyzna = moralne zjednoczenie, zbiorowy obowiązek, wspólne wartości. Przejście dobrowolne — jak obietnica skierowana ku wolności.',cat:'polish'},
+  {q:'Trzy działy etyki Kotarbińskiego?',a:'Felicytologia (nauka o szczęściu) · Prakseologia (jak działać skutecznie) · Etyka właściwa/deontologia (jak być porządnym człowiekiem — zasłużyć na miano czcigodny).',cat:'polish'},
+  {q:'Co to etyka niezależna (Kotarbiński)?',a:'Etyka niezależna od religii, metafizyki i sporów ontologicznych. Podstawa: wspólne poczucie „czcigodny" vs „haniebny". „Czynna dobroć ma uzasadnienie w oczywistościach serca."',cat:'polish'},
+  {q:'Kim jest opiekun spolegliwy (Kotarbiński)?',a:'„Człowiek, na którego ktoś broniony przezeń może słusznie liczyć w trudnych okolicznościach." Bezinteresowny, odważny, godny zaufania. Wzorzec etyczny Kotarbińskiego.',cat:'polish'},
+  {q:'Dyrektywna koncepcja znaczenia (Ajdukiewicz)?',a:'Języka nie można scharakteryzować tylko przez słownictwo i składnię — znaczenie zależy też od sposobu użycia. 3 dyrektywy: aksjomatyczne · dedukcyjne · empiryczne.',cat:'polish'},
+  {q:'Czym jest homo ethicus (Elzenberg)?',a:'Człowiek pragnący możliwie największej przewagi dobra nad złem w życiu jako całości. Dwie postawy: meliorystyczna (realizowanie dobra) i soteryczna (wyzbywanie się zła).',cat:'polish'},
+  {q:'Filozofia dramatu Tischnera?',a:'Każda wolność pociąga odpowiedzialność. Egzystencja = ciągły wybór dobra lub zła. Zagrożenia wewnętrzne (lęk, emocje) i zewnętrzne (przemoc, opresja). Spotkanie Drugiego może być dramatem.',cat:'polish'},
+];
+
+const allQuiz = [
+  {q:'Co to eudajmonizm?',o:['Nauka o duszy','Szczęście jako cel i podstawa oceny moralnej','Nauka o wartościach','Teoria poznania zmysłowego'],a:1,e:'Eudajmonizm (Arystoteles): szczęście jako cel i kryterium oceny moralnej. Aretologia = nauka o cnocie jako drodze do szczęścia.'},
+  {q:'Złoty środek Arystotelesa — cnota to:',o:['Doskonałe wytrwanie we wszystkim','Środek między nadmiarem a niedomiarem','Brak wszelkich uczuć i namiętności','Posłuszeństwo rozumowi w każdej chwili'],a:1,e:'Cnoty etyczne = złoty środek. Brawura → Męstwo ← Tchórzostwo. Przyjaźń i sprawiedliwość NIE są cnotami (nie mają nadmiaru/niedomiaru).'},
+  {q:'Mit jaskini Platona: wyjście na słońce symbolizuje:',o:['Ucieczkę od obowiązków','Przejście od zmysłów do idei i prawdy','Śmierć i niebo','Bunt wobec filozofii'],a:1,e:'Cienie na ścianie = poznanie zmysłowe (doksa). Słońce = Idea Dobra = episteme. Filozof wraca do jaskini, by oświecić innych — lecz jest niezrozumiany.'},
+  {q:'Cogito ergo sum — z czego wynika?',o:['Z obserwacji przyrody','Z wiary w Boga','Z tego, że wątpię, a wątpienie jest myśleniem','Ze snu filozofa'],a:2,e:'Kartezjusz: sceptycyzm metodyczny → 3 złudzenia. Jedyna pewna rzecz: wątpię = myślę = jestem. Jaźń (dusza) istnieje niezależnie od ciała.'},
+  {q:'Gilotyna Hume\'a mówi, że:',o:['Przyjemność jest dobrem bezwzględnym','Od „jest" nie można przejść do „powinno być"','Rozum ważniejszy od zmysłów','Bóg nie istnieje'],a:1,e:'Gilotyna Hume\'a: z faktów empirycznych nie można logicznie wywieść sądów normatywnych. Błąd naturalistyczny Moore\'a: utożsamianie dobra z cechą naturalną.'},
+  {q:'Imperatyw kategoryczny Kanta:',o:['Czyń to, co daje przyjemność','Działaj dla dobra większości','Postępuj tak, byś mógł chcieć, by zasady twoje stały się prawem powszechnym','Szanuj prawo Boże ponad wszystko'],a:2,e:'Bezwarunkowy nakaz moralny. W odróżnieniu od hipotetycznego (jeśli…to…). Człowiek moralny działa z obowiązku, nie dla zysku.'},
+  {q:'Trzy stadia Kierkegaarda w kolejności:',o:['Religijne → etyczne → estetyczne','Estetyczne → etyczne → religijne','Etyczne → religijne → estetyczne','Estetyczne → religijne → etyczne'],a:1,e:'Estetyczne (zmysły, chwila) → Etyczne (wybór, zobowiązanie; symbol: małżeństwo) → Religijne (subiektywna wiara jako wyjście z rozpaczy).'},
+  {q:'„Esse = percipi" to formuła:',o:['Kanta','Berkeleya','Hume\'a','Locke\'a'],a:1,e:'Berkeley: istnieć = być postrzeganym. Substancji materialnej nie ma; ciała = zespoły jakości zmysłowych. Trwałość rzeczy: Bóg je wciąż postrzega.'},
+  {q:'Zasada użyteczności Benthama:',o:['Działaj zgodnie z prawem natury','Największa ilość przyjemności największej ilości istot','Dobro = to, co przetrwa próbę czasu','Prawda = to, co jest użyteczne'],a:1,e:'7 wymiarów: intensywność, trwanie, pewność, bliskość, płodność, czystość, zasięg. Charakter ilościowy — rodzaj przyjemności obojętny.'},
+  {q:'Triada heglowska:',o:['Teza → Synteza → Antyteza','Antyteza → Teza → Synteza','Teza → Antyteza → Synteza','Synteza → Teza → Antyteza'],a:2,e:'Teza → Antyteza → Synteza (nowa Teza). Filozofia ducha: subiektywny → obiektywny (prawo, państwo) → absolutny (sztuka, religia, filozofia).'},
+  {q:'Recentywizm Bańki to:',o:['Teoria o ważności przeszłości','Zasada pierwszeństwa teraźniejszości','Filozofia postępu ku przyszłości','Materializm historyczny'],a:1,e:'Byt = to, co przeżywamy jako „teraz". Ja = racja istnienia historii i przyszłości. Moment recentywistyczny: niezdeterminowane → zdeterminowane = rzeczywiste.'},
+  {q:'Zwieńczeniem wolności wg Tischnera jest:',o:['Samotność i kontemplacja','Relacja Ja-Ty','Wspólnota My','Tylko dialog z Bogiem'],a:2,e:'„Wolność wydojrzewa od Ja do Ty, od Ty do Ja, do My. Zwieńczeniem wolności jest My." Nikt nie może być wolny w samotności.'},
+  {q:'Trzy działy etyki wg Kotarbińskiego:',o:['Logika, epistemologia, aksjologia','Felicytologia, prakseologia, deontologia','Etyka, estetyka, metafizyka','Ontologia, logika, etyka'],a:1,e:'Felicytologia (szczęście) · Prakseologia (skuteczne działanie) · Etyka właściwa/deontologia (porządny człowiek). Etyka niezależna od religii i metafizyki.'},
+  {q:'Wartość perfekcyjna u Elzenberga:',o:['Zależy od oceniającego','Bezwzględna — jedyna prawdziwa kategoria aksjologiczna','Praktyczna i instrumentalna','Estetyczna'],a:1,e:'Dwa znaczenia wartości: utylitarne (względna) i perfekcyjne (bezwzględna). Perfekcyjna nadrzędna wobec etycznej i estetycznej. Homo ethicus dąży do jej realizacji.'},
+  {q:'Dyrektywna koncepcja znaczenia (Ajdukiewicz):',o:['Znaczenie zależy tylko od słownictwa','Znaczenie zależy od słownictwa, składni i sposobu użycia','Znaczenie jest wrodzone','Znaczenie zależy wyłącznie od doświadczenia'],a:1,e:'Języka nie można scharakteryzować tylko przez słownictwo i składnię. 3 dyrektywy: aksjomatyczne (bezwarunkowe) · dedukcyjne · empiryczne (zaistnienie sytuacji empirycznej).'},
+  {q:'Falsyfikacjonizm Poppera głosi, że:',o:['Wiedza rośnie przez potwierdzanie hipotez','Wiedza rośnie przez obalanie (falsyfikację) hipotez','Naukę tworzą paradygmaty','Prawda zawsze jest subiektywna'],a:1,e:'Popper: hipotezy → konsekwencje → testy → próba obalenia. Teoria może być zastąpiona przez wyższą ogólnością. 3 światy: fizyczny · duchowy · intelligibiliów.'},
+  {q:'Pięć dróg Tomasza — skąd pochodzi trzecia droga?',o:['Z ruchu w przyrodzie','Z różnych stopni doskonałości','Z faktu, że byty są przygodne (mogą nie istnieć)','Z celowości i ładu w świecie'],a:2,e:'Ex possibili et necessario — skoro byty mogą nie istnieć (są przygodne), musi istnieć byt konieczny (sam w sobie). Pozostałe: z ruchu · z przyczynowości · ze stopni doskonałości · z celowości.'},
+  {q:'„Esse = percipi" powoduje problem trwałości rzeczy. Berkeley rozwiązuje go przez:',o:['Powrót do materii','Fakt, że Bóg wciąż postrzega rzeczy','Subiektywizm radykalny','Zaprzeczenie istnienia rzeczy'],a:1,e:'Berkeley: rzeczy są postrzeżeniami nie tylko ludzi, ale i Boga. Jako postrzeżenia Boże mają trwałość i jedność nawet gdy żaden człowiek na nie nie patrzy.'},
+  {q:'Filozofia dramatu Tischnera — dramatyzm egzystencji polega na:',o:['Tragicznym losie narodu','Ciągłym wyborze dobra lub zła; każda wolność pociąga odpowiedzialność','Konflikcie między rozumem a wiarą','Niemożności osiągnięcia szczęścia'],a:1,e:'Zagrożenia wewnętrzne (lęk, emocje) i zewnętrzne (przemoc, opresja). Spotkanie Drugiego może być dramatem zderzenia wartości i antywartości.'},
+  {q:'Alienacja religijna (Feuerbach):',o:['Odejście od Kościoła','Wytwory umysłu stają się nadrzędne wobec twórcy','Nadmierne przywiązanie do dóbr','Brak wiary w postęp'],a:1,e:'Bóg = idea nadczłowieka z najlepszymi cechami ludzkimi w nieskończonym stopniu. Po usamodzielnieniu staje się nadrzędna wobec twórcy. Człowiek stworzył Boga, nie odwrotnie.'},
+];
+
+const glosData = [
+  {t:'Tabula rasa',d:'Niezapisana tablica — umysł przed doświadczeniem, bez treści wrodzonych',a:'Arystoteles, Locke',cat:'modern'},
+  {t:'Anamneza',d:'Wiedza jako przypominanie idei z poprzedniego życia duszy; zmysły jedynie pobudzają wspomnienie',a:'Platon',cat:'ancient'},
+  {t:'Doksa',d:'Poznanie zmysłowe — niepewne i złudne',a:'Platon',cat:'ancient'},
+  {t:'Episteme',d:'Poznanie rozumowe idei — niezawodne i pewne',a:'Platon',cat:'ancient'},
+  {t:'Eudajmonizm',d:'Szczęście jako cel i podstawa oceny moralnej',a:'Arystoteles',cat:'ancient'},
+  {t:'Aretologia',d:'Nauka o cnocie (gr. arete = cnota). Cnoty = trwałe dyspozycje czyniące człowieka dobrym',a:'Arystoteles',cat:'ancient'},
+  {t:'Złoty środek',d:'Cnota jako środek między nadmiarem a niedomiarem wady — np. Męstwo między Brawurą a Tchórzostwem',a:'Arystoteles',cat:'ancient'},
+  {t:'Pneuma',d:'Czynny pierwiastek u stoików — tchnienie; materia + pneuma = dwa pierwiastki świata',a:'Stoicy',cat:'ancient'},
+  {t:'Ataraksja',d:'Spokój ducha, niewzruszoność — cel etyki stoickiej; wyzbycie się namiętności (afektów)',a:'Stoicy',cat:'ancient'},
+  {t:'Epoché',d:'(1) Powstrzymanie od sądów u sceptyków; (2) Redukcja fenomenologiczna u Husserla — ujęcie świata w nawias',a:'Pyrron; Husserl',cat:'ancient'},
+  {t:'Izostenia',d:'Równosilność sądów — żaden sąd nie jest logicznie silniejszy od innych',a:'Sofiści, Pyrron',cat:'ancient'},
+  {t:'Hipostazy Plotyna',d:'Trzy formy emanacji Jednego: Duch (nous) · Dusza · Materia',a:'Plotyn',cat:'medieval'},
+  {t:'Via negativa',d:'Droga zaprzeczenia — definiowanie Jednego/Boga przez to, czym nie jest',a:'Plotyn',cat:'medieval'},
+  {t:'Iluminacja',d:'Bóg pośrednio oświeca umysł; wiedza niezależna od doświadczenia',a:'Augustyn',cat:'medieval'},
+  {t:'Credo ut intelligam',d:'Wierzę, żeby rozumieć; wiara wyprzedza i normuje rozum',a:'Anzelm',cat:'medieval'},
+  {t:'Ipsum esse subsistens',d:'Byt, w którym istota = istnienie; Bóg = jedyny taki byt — konieczny, prosty, niezależny',a:'Tomasz z Akwinu',cat:'medieval'},
+  {t:'Transcendentalia',d:'Właściwości każdego bytu: Ens · Res · Unum · Aliquid · Bonum · Verum · Pulchrum',a:'Tomasz z Akwinu',cat:'medieval'},
+  {t:'Praeambula fidei',d:'Filozofia jako przygotowanie do wiary — służy teologii (Tomasz)',a:'Tomasz z Akwinu',cat:'medieval'},
+  {t:'Brzytwa Ockhama',d:'Nie mnożyć bytów ponad konieczność; zasada ekonomii myślenia',a:'Ockham',cat:'medieval'},
+  {t:'4 Idola Bacona',d:'Tribus (plemienne) · Specus (jaskini) · Fori (rynkowe) · Theatri (teatru) — cztery rodzaje złudzeń poznawczych',a:'Bacon',cat:'modern'},
+  {t:'Cogito ergo sum',d:'Myślę, więc jestem — jedyna pewna rzecz po sceptycyzmie metodycznym Kartezjusza',a:'Kartezjusz',cat:'modern'},
+  {t:'Res cogitans / extensa',d:'Res cogitans = dusza (myślenie, wola, uczucie). Res extensa = ciało (rozciągłość, mechanizm)',a:'Kartezjusz',cat:'modern'},
+  {t:'Esse = percipi',d:'Istnieć = być postrzeganym; substancja materialna nie istnieje; ciała = zespoły jakości zmysłowych',a:'Berkeley',cat:'modern'},
+  {t:'Gilotyna Hume\'a',d:'Od tego, co „jest" (is), nie można przejść do tego, co „powinno być" (ought) — fakty nie implikują norm',a:'Hume',cat:'modern'},
+  {t:'Błąd naturalistyczny',d:'Utożsamianie pojęcia dobra z cechą naturalną (np. „przyjemne" = „dobre")',a:'G.E. Moore',cat:'modern'},
+  {t:'Impresje / idee (Hume)',d:'Impresje = wrażenia pierwotne, sprawdzian prawdziwości. Idee = pochodne, odbicia impresji.',a:'Hume',cat:'modern'},
+  {t:'Syntetyczne a priori',d:'Sądy rozszerzające wiedzę (syntetyczne), niezależne od doświadczenia (a priori) — cel filozofii Kanta',a:'Kant',cat:'modern'},
+  {t:'Noumeny / fenomeny',d:'Noumeny = rzeczy same w sobie (niepoznawalne). Fenomeny = rzeczy jako zjawiska (poznawalne przez formy i kategorie)',a:'Kant',cat:'modern'},
+  {t:'Imperatyw kategoryczny',d:'Bezwarunkowy nakaz moralny: „Postępuj tak, byś mógł chcieć, by zasady twoje stały się prawem powszechnym"',a:'Kant',cat:'modern'},
+  {t:'Imperatyw hipotetyczny',d:'Nakaz warunkowy (jeśli…to…) — nie ma charakteru moralnego, w odróżnieniu od kategorycznego',a:'Kant',cat:'modern'},
+  {t:'Wola życia',d:'Niezaspokojony popęd leżący u podstaw wszystkiego — źródło cierpienia; nie można go zaspokoić',a:'Schopenhauer',cat:'contemp'},
+  {t:'Resentyment',d:'Narzucenie woli słabych silnym jednostkom; podporządkowanie silnych wartościom masy',a:'Nietzsche',cat:'contemp'},
+  {t:'Apolliński / dionizyjski',d:'Apolliński = harmonia, opanowanie, doskonałość. Dionizyjski = pełnia życia, dynamika, przekraczanie granic. Nietzsche po stronie dionizyjskiej.',a:'Nietzsche',cat:'contemp'},
+  {t:'Egzystencja (Kierkegaard)',d:'Jednostkowe, nieustanne stawanie się w czasie. Przedmiotem filozofii nie „istota", lecz „egzystencja".',a:'Kierkegaard',cat:'contemp'},
+  {t:'Trzy stadia (Kierkegaard)',d:'Estetyczne (zmysły, chwila) → Etyczne (wybór, zobowiązanie) → Religijne (subiektywna wiara)',a:'Kierkegaard',cat:'contemp'},
+  {t:'Ja-Ty / Ja-Ono (Buber)',d:'Ja-Ono = relacja monologiczna (doświadczenie rzeczy). Ja-Ty = relacja dialogiczna (spotkanie). Bóg = Ty wieczne.',a:'Buber',cat:'contemp'},
+  {t:'Oblicze (Levinas)',d:'Manifestacja Innego, która narzuca odpowiedzialność; nie można się od niej uchylić',a:'Levinas',cat:'contemp'},
+  {t:'Substytucja (Levinas)',d:'Najwyższa forma odpowiedzialności = postawienie siebie w miejsce Innego; podmiot poświęca siebie',a:'Levinas',cat:'contemp'},
+  {t:'Noeza / noemat (Husserl)',d:'Noeza = akt myślenia (postrzeganie, kochanie). Noemat = to, co myślane, przedmiot w akcie.',a:'Husserl',cat:'contemp'},
+  {t:'Intencjonalność',d:'Świadomość zawsze jest „ku czemuś" — jej podstawowa cecha (Husserl)',a:'Husserl',cat:'contemp'},
+  {t:'Trzy fazy Comte\'a',d:'Teologiczna → Metafizyczna → Pozytywna (twierdzenia wyłącznie oparte na faktach)',a:'Comte',cat:'contemp'},
+  {t:'Heterogenia celów',d:'Działania powodują nieprzewidziane skutki → stawiane są wciąż nowe cele',a:'Wundt',cat:'contemp'},
+  {t:'Falsyfikacjonizm',d:'Wiedza rośnie przez obalanie (falsyfikację) hipotez, nie przez ich potwierdzanie',a:'Popper',cat:'contemp'},
+  {t:'Trzy światy (Popper)',d:'Fizyczny (1) · Duchowy/umysłowy (2) · Intelligibiliów/idei obiektywnych (3)',a:'Popper',cat:'contemp'},
+  {t:'Paradygmat (Kuhn)',d:'Zestaw akceptowanych norm i wzorców praktyki naukowej; wyznacza okresy nauki normalnej',a:'Kuhn',cat:'contemp'},
+  {t:'Rewolucja naukowa',d:'Zmiana paradygmatu; przejście między okresami nauki normalnej przez kryzys',a:'Kuhn',cat:'contemp'},
+  {t:'Wartość perfekcyjna',d:'Wartość bezwzględna — jedyna prawdziwa kategoria aksjologiczna; nadrzędna wobec etycznej i estetycznej',a:'Elzenberg',cat:'polish'},
+  {t:'Homo ethicus',d:'Człowiek świadomie dążący do moralnej doskonałości; maksymalna przewaga dobra nad złem w życiu jako całości',a:'Elzenberg',cat:'polish'},
+  {t:'Recentywizm',d:'Zasada pierwszeństwa teraźniejszości. Byt = to, co przeżywamy jako „teraz". Przeszłość i przyszłość istnieją przez Ja.',a:'Bańka',cat:'polish'},
+  {t:'Moment recentywistyczny',d:'Chwila, gdy niezdeterminowane staje się zdeterminowane = rzeczywistym. „Teraz" znane tylko przez świadomość.',a:'Bańka',cat:'polish'},
+  {t:'Etyka prostomyślności',d:'Zdolność uchwycenia niepowtarzalnego sensu własnej sytuacji. Odróżnianie etycznego od nieetycznego.',a:'Bańka',cat:'polish'},
+  {t:'Opiekun spolegliwy',d:'Wzorzec etyczny: człowiek, na którego chroniony może słusznie liczyć w trudnych okolicznościach — bezinteresowny, odważny, godny zaufania',a:'Kotarbiński',cat:'polish'},
+  {t:'Felicytologia',d:'Nauka o szczęściu — pierwszy dział etyki wg Kotarbińskiego',a:'Kotarbiński',cat:'polish'},
+  {t:'Prakseologia',d:'Nauka o skutecznym działaniu — drugi dział etyki wg Kotarbińskiego',a:'Kotarbiński',cat:'polish'},
+  {t:'Etyka niezależna',d:'Etyka bez założeń religijnych i metafizycznych. Podstawa: poczucie „czcigodny" vs „haniebny". „Czynna dobroć ma uzasadnienie w oczywistościach serca."',a:'Kotarbiński',cat:'polish'},
+  {t:'Dyrektywna koncepcja znaczenia',d:'Znaczenie = słownictwo + składnia + sposób użycia wyrażeń. 3 dyrektywy: aksjomatyczne · dedukcyjne · empiryczne.',a:'Ajdukiewicz',cat:'polish'},
+  {t:'Holistyczna teoria znaczenia',d:'Obraz świata = wypadkowa doświadczenia i aparatury pojęciowej. Zmiana aparatury = zmiana opisu rzeczywistości.',a:'Ajdukiewicz',cat:'polish'},
+  {t:'Filozofia dramatu',d:'Egzystencja jako ciągły wybór dobra lub zła; każda wolność pociąga odpowiedzialność',a:'Tischner',cat:'polish'},
+  {t:'Personalizm (Wojtyła)',d:'Nauka o osobie jako podmiocie i przedmiocie działania, podmiocie uprawnień. Źródła: Boecjusz + Tomasz.',a:'Wojtyła',cat:'polish'},
+  {t:'Uczynnienie (Wojtyła)',d:'Zdarzenie lub proces nie będący rezultatem świadomej decyzji — przeciwieństwo wolnego czynu',a:'Wojtyła',cat:'polish'},
+  {t:'Zasada użyteczności',d:'„Największa ilość przyjemności największej ilości istot"; ocena postępków wg wpływu na szczęście zainteresowanych',a:'Bentham',cat:'social'},
+  {t:'Triada heglowska',d:'Teza → Antyteza → Synteza (która staje się nową Tezą)',a:'Hegel',cat:'social'},
+  {t:'Alienacja religijna',d:'Wytwory umysłu (Bóg) stają się nadrzędne wobec twórcy; człowiek stworzył Boga, nie odwrotnie',a:'Feuerbach',cat:'social'},
+  {t:'Ewolucjonizm społeczny',d:'3 procesy: integracja + dyferencjacja + wzrost określoności. Etyka walki o byt. Od militaryzmu do industrializmu.',a:'Spencer',cat:'social'},
+];
+
+// ---- POLISH PHILOSOPHERS ----
+function renderPolishGrid() {
+  const g = document.getElementById('polish-grid');
+  polishPhils.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'phil-card';
+    btn.onclick = () => showDetail(p.id);
+    btn.innerHTML = `<div class="name">${p.name}</div><div class="years">${p.years}</div><div class="area">${p.area}</div>`;
+    g.appendChild(btn);
+  });
+}
+
+function showDetail(id) {
+  const p = polishPhils.find(x => x.id === id);
+  const panel = document.getElementById('polish-detail');
+  const content = document.getElementById('polish-detail-content');
+  content.innerHTML = `
+    <h3>${p.name} <span style="font-weight:400;font-size:0.85rem;color:var(--text3)">${p.years} · ${p.area}</span></h3>
+    <p style="font-size:0.78rem;color:var(--text3);margin-bottom:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Główne dzieła</p>
+    <ul class="works-list">${p.dziela.map(d => `<li>${d}</li>`).join('')}</ul>
+    <p style="font-size:0.78rem;color:var(--text3);margin-bottom:0.625rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Kluczowe koncepcje</p>
+    ${p.kv.map(([k, v]) => `<div class="concept-item"><div class="label">${k}</div><div class="desc">${v}</div></div>`).join('')}`;
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDetail() {
+  document.getElementById('polish-detail').classList.remove('open');
+}
+
+// ---- SOCIAL CONTENT ----
+function renderSocial() {
+  const el = document.getElementById('social-content');
+  socialData.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3>${s.name}</h3><div class="grid2">${s.items.map(([k,v]) => `<div class="block ${s.color}"><h4>${k}</h4><p>${v}</p></div>`).join('')}</div>`;
+    el.appendChild(card);
+  });
+}
+
+// ---- FLASHCARDS ----
+let fcList = [...allCards], fcIdx = 0;
+
+function updateFC() {
+  if (!fcList.length) return;
+  const c = fcList[fcIdx];
+  document.getElementById('fc-q').textContent = c.q;
+  document.getElementById('fc-a').textContent = c.a;
+  const txt = `${fcIdx + 1} / ${fcList.length}`;
+  document.getElementById('fc-counter').textContent = txt;
+  document.getElementById('fc-counter2').textContent = txt;
+  document.getElementById('fc-progress').style.width = ((fcIdx + 1) / fcList.length * 100) + '%';
+  document.getElementById('fc-card').classList.remove('flipped');
+}
+
+function flipFC() { document.getElementById('fc-card').classList.toggle('flipped'); }
+function nextFC() { fcIdx = (fcIdx + 1) % fcList.length; updateFC(); }
+function prevFC() { fcIdx = (fcIdx - 1 + fcList.length) % fcList.length; updateFC(); }
+function shuffleFC() { fcList.sort(() => Math.random() - 0.5); fcIdx = 0; updateFC(); }
+function filterFC() {
+  const v = document.getElementById('fc-filter').value;
+  fcList = v === 'all' ? [...allCards] : allCards.filter(c => c.cat === v);
+  fcIdx = 0;
+  updateFC();
+}
+
+// ---- QUIZ ----
+let qState = { answered: 0, correct: 0 };
+
+function initQuiz() {
+  qState = { answered: 0, correct: 0 };
+  document.getElementById('score-panel').classList.remove('show');
+  const sel = [...allQuiz].sort(() => Math.random() - 0.5).slice(0, 15);
+  const wrap = document.getElementById('quiz-content');
+  wrap.innerHTML = '';
+  sel.forEach((q, i) => {
+    const shuffled = q.o.map((o, j) => ({ o, j })).sort(() => Math.random() - 0.5);
+    const correctIdx = shuffled.findIndex(x => x.j === q.a);
+    const div = document.createElement('div');
+    div.className = 'q-card';
+    div.innerHTML = `
+      <p class="q-num">PYTANIE ${i + 1} Z 15</p>
+      <p class="q-text">${q.q}</p>
+      <div class="opts">
+        ${shuffled.map((x, k) => `<button class="opt" onclick="answerQ(${i}, ${k}, ${correctIdx}, \`${q.e.replace(/`/g, "'")}\`, this)">${x.o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="fb-${i}"></div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function answerQ(qi, chosen, correct, exp, btn) {
+  const card = document.getElementById('quiz-content').children[qi];
+  const btns = card.querySelectorAll('.opt');
+  const fb = document.getElementById(`fb-${qi}`);
+  btns.forEach((b, i) => { b.disabled = true; if (i === correct) b.classList.add('correct'); else if (i === chosen) b.classList.add('wrong'); });
+  const ok = chosen === correct;
+  if (ok) qState.correct++;
+  qState.answered++;
+  fb.textContent = (ok ? '✓ Dobrze! ' : '✗ Błąd. ') + exp;
+  fb.className = 'feedback show ' + (ok ? 'ok' : 'no');
+  if (qState.answered === 15) {
+    setTimeout(() => {
+      const p = qState.correct;
+      document.getElementById('score-num').textContent = `${p} / 15`;
+      document.getElementById('score-msg').textContent = p >= 13 ? 'Doskonały wynik! Egzamin zdasz z wyróżnieniem.' : p >= 10 ? 'Świetnie! Jesteś dobrze przygotowany.' : p >= 7 ? 'Nieźle. Warto powtórzyć słabsze tematy.' : 'Wróć jeszcze raz do materiału. Dasz radę!';
+      document.getElementById('score-panel').classList.add('show');
+    }, 600);
+  }
+}
+
+// ---- GLOSSARY ----
+let activeGlosCat = 'all';
+const cats = ['all', 'ancient', 'medieval', 'modern', 'contemp', 'polish', 'social'];
+const catNames = { all: 'Wszystkie', ancient: 'Starożytność', medieval: 'Średniowiecze', modern: 'Nowożytność', contemp: 'XIX–XX w.', polish: 'Polska', social: 'Społeczna' };
+
+function renderGlosPills() {
+  const el = document.getElementById('glos-pills');
+  cats.forEach(c => {
+    const pill = document.createElement('button');
+    pill.className = 'pill' + (c === 'all' ? ' active' : '');
+    pill.textContent = catNames[c];
+    pill.onclick = () => { activeGlosCat = c; document.querySelectorAll('.pill').forEach(p => p.classList.remove('active')); pill.classList.add('active'); filterGlos(); };
+    el.appendChild(pill);
+  });
+}
+
+function filterGlos() {
+  const q = document.getElementById('glos-search').value.toLowerCase();
+  const filtered = glosData.filter(g => {
+    const cat = activeGlosCat === 'all' || g.cat === activeGlosCat;
+    const text = !q || g.t.toLowerCase().includes(q) || g.d.toLowerCase().includes(q) || g.a.toLowerCase().includes(q);
+    return cat && text;
+  });
+  const el = document.getElementById('glos-table');
+  if (!filtered.length) { el.innerHTML = '<p style="color:var(--text3);padding:1rem 0">Brak wyników. Spróbuj innego zapytania.</p>'; return; }
+  el.innerHTML = filtered.map(g => `
+    <div class="glos-row">
+      <div><div class="glos-term">${g.t}</div><div class="glos-author">${g.a}</div></div>
+      <div class="glos-def">${g.d}</div>
+    </div>`).join('');
+}
+
+// ---- INIT ----
+renderPolishGrid();
+renderSocial();
+updateFC();
+initQuiz();
+renderGlosPills();
+filterGlos();
+</script>
+</body>
+</html>
